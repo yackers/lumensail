@@ -1,0 +1,36 @@
+{
+    "name": "yackers/lumensail",
+    "description": "Lumen Laravel Sail Package",
+    "license": "MIT",
+    "support": {
+        "source": "https://github.com/yackers/lumensail"
+    },
+    "authors": [
+        {
+            "name": "Yackers",
+            "email": "yackers@devdf.com"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "laravel/sail": "^1.7",
+        "illuminate/filesystem": "^8.0|^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Yackers\\LumenSail\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Yackers\\LumenSail\\LumenSailServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
