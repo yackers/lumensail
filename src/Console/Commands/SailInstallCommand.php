@@ -56,6 +56,7 @@ class SailInstallCommand extends Command
 
         $this->buildDockerCompose($services, $serviceName);
         $this->replaceEnvVariables($services, $appPort);
+        $this->moveServerFile();
 
         if ($this->confirm('Publish the Laravel Sail Docker files ?', true)) {
 
@@ -63,6 +64,14 @@ class SailInstallCommand extends Command
         }
 
         $this->info('Sail scaffolding installed successfully.');
+    }
+
+    protected function moveServerFile(): void
+    {
+        $this->laravel
+            ->files
+            ->copy(__DIR__ . '/../../../server.php', base_path('server.php')
+            );
     }
 
     /**

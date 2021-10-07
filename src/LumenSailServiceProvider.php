@@ -4,8 +4,10 @@ namespace Yackers\LumenSail;
 
 use Yackers\LumenSail\Console\Commands\SailInstallCommand;
 use Yackers\LumenSail\Console\Commands\SailPublishCommand;
+use Yackers\LumenSail\Console\Commands\ServeCommand;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
+
 
 class LumenSailServiceProvider extends ServiceProvider implements DeferrableProvider
 {
@@ -18,7 +20,7 @@ class LumenSailServiceProvider extends ServiceProvider implements DeferrableProv
     public function boot()
     {
         if ($this->app->runningInConsole()) {
-            $this->commands([SailInstallCommand::class, SailPublishCommand::class]);
+            $this->commands([SailInstallCommand::class, SailPublishCommand::class, ServeCommand::class]);
         }
     }
 
@@ -29,6 +31,6 @@ class LumenSailServiceProvider extends ServiceProvider implements DeferrableProv
      */
     public function provides(): array
     {
-        return [SailInstallCommand::class, SailPublishCommand::class];
+        return [SailInstallCommand::class, SailPublishCommand::class, ServeCommand::class];
     }
 }
