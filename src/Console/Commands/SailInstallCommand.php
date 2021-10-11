@@ -55,7 +55,7 @@ class SailInstallCommand extends Command
         $appPort = $this->option('port') ?? $this->setAppPort();
 
         $this->buildDockerCompose($services, $serviceName);
-        $this->replaceEnvVariables($services, $appPort);
+        $this->replaceEnvVariables($services, $appPort, $serviceName);
         $this->moveServerFile();
 
         if ($this->confirm('Publish the Laravel Sail Docker files ?', true)) {
@@ -76,8 +76,8 @@ class SailInstallCommand extends Command
 
     /**
      * Gather the desired Sail services using a Symfony menu.
-     *
-     * @return array
+`     *
+`     * @return array
      */
     protected function gatherServicesWithSymfonyMenu(): array
     {
@@ -166,7 +166,7 @@ class SailInstallCommand extends Command
      * @param string $appPort
      * @return void
      */
-    protected function replaceEnvVariables(array $services, string $appPort): void
+    protected function replaceEnvVariables(array $services, string $appPort, ?string $serviceName): void
     {
         $environment = file_get_contents(base_path('.env'));
 
@@ -195,6 +195,14 @@ class SailInstallCommand extends Command
             $environment = preg_replace("/APP_PORT=(.*)/", "APP_PORT={$appPort}", $environment);
         } else {
             $environment .= "\nAPP_PORT={$appPort}\n";
+        }
+
+        if ($serviceName) {
+            if (str_contains($environment, "APP_SERVICE")) {
+                $environment = preg_replace("/APP_SERVICE=(.*)/", "APP_SERVICE={$serviceName}", $environment);
+            } else {
+                $environment .= "\nAPP_SERVICE={$appPort}\n";
+            }
         }
 
         file_put_contents(base_path('.env'), $environment);
