@@ -3,6 +3,7 @@
 namespace Yackers\LumenSail\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Env;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Process\PhpExecutableFinder;
@@ -61,7 +62,7 @@ class ServeCommand extends Command
 
         $environmentLastModified = $hasEnvironment
                             ? filemtime($environmentFile)
-                            : now()->addDays(30)->getTimestamp();
+                            : Carbon::now()->addDays(30)->getTimestamp();
 
         $process = $this->startProcess($hasEnvironment);
 
@@ -101,7 +102,7 @@ class ServeCommand extends Command
      *
      * @return \Symfony\Component\Process\Process
      */
-    protected function startProcess($hasEnvironment)
+    protected function startProcess($hasEnvironment): Process
     {
         $process = new Process($this->serverCommand(), null, collect($_ENV)->mapWithKeys(function ($value, $key) use ($hasEnvironment) {
             if ($this->option('no-reload') || ! $hasEnvironment) {
@@ -112,8 +113,11 @@ class ServeCommand extends Command
                 'APP_ENV',
                 'LARAVEL_SAIL',
                 'PHP_CLI_SERVER_WORKERS',
+                'PHP_IDE_CONFIG',
+                'SYSTEMROOT',
                 'XDEBUG_CONFIG',
                 'XDEBUG_MODE',
+                'XDEBUG_SESSION',
             ]) ? [$key => $value] : [$key => false];
         })->all());
 
@@ -129,13 +133,17 @@ class ServeCommand extends Command
      *
      * @return array
      */
-    protected function serverCommand()
+    protected function serverCommand(): array
     {
+        $server = file_exists(base_path('server.php'))
+            ? base_path('server.php')
+            : __DIR__.'/../../../server.php';
+
         return [
             (new PhpExecutableFinder)->find(false),
             '-S',
             $this->host().':'.$this->port(),
-            base_path('server.php'),
+            $server,
         ];
     }
 
@@ -144,7 +152,7 @@ class ServeCommand extends Command
      *
      * @return string
      */
-    protected function host()
+    protected function host(): string
     {
         [$host, ] = $this->getHostAndPort();
 
@@ -156,7 +164,7 @@ class ServeCommand extends Command
      *
      * @return string
      */
-    protected function port()
+    protected function port(): string
     {
         $port = $this->input->getOption('port');
 
@@ -174,7 +182,7 @@ class ServeCommand extends Command
      *
      * @return array
      */
-    protected function getHostAndPort()
+    protected function getHostAndPort(): array
     {
         $hostParts = explode(':', $this->input->getOption('host'));
 
@@ -189,7 +197,7 @@ class ServeCommand extends Command
      *
      * @return bool
      */
-    protected function canTryAnotherPort()
+    protected function canTryAnotherPort(): bool
     {
         return is_null($this->input->getOption('port')) &&
                ($this->input->getOption('tries') > $this->portOffset);
@@ -200,7 +208,7 @@ class ServeCommand extends Command
      *
      * @return array
      */
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['host', null, InputOption::VALUE_OPTIONAL, 'The host address to serve the application on', '127.0.0.1'],

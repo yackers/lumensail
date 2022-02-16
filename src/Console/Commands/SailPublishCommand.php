@@ -20,21 +20,17 @@ class SailPublishCommand extends Command
      */
     protected $description = 'Publish the Laravel Sail Docker files';
 
-    /**
-     * Versions to publish
-     * @var array
-     */
-    protected array $versions = ['8.0', '7.4'];
+
     /**
      * Path of sail runtimes folder
      * @var string
      */
-    protected string $runtimePath = './vendor/laravel/sail/runtimes/';
+    protected string $runtimePath = 'vendor/laravel/sail/runtimes/';
     /**
      * Destination docker folder
      * @var string
      */
-    protected string $dockerPath = './docker/';
+    protected string $dockerPath = 'docker/';
 
     /**
      * Publish laravel sail & docker files
@@ -45,18 +41,18 @@ class SailPublishCommand extends Command
     {
         $this->laravel
             ->files
-            ->copyDirectory(base_path('vendor/laravel/sail/runtimes'), base_path('docker')
-        );
+            ->copyDirectory(base_path($this->runtimePath), base_path($this->dockerPath));
+
+        if ($this->confirm('Publish Laravel Sail bin file ?', true)) {
+
+            $this->laravel
+                ->files
+                ->copy(base_path('vendor/laravel/sail/bin/sail'), base_path('sail'));
+
+        }
 
         $this->laravel
             ->files
-            ->copy(base_path('vendor/laravel/sail/bin/sail'), base_path('sail')
-        );
-
-        $this->laravel->files->replaceInFile(
-            array_map(fn($value): string => $this->runtimePath . $value, $this->versions),
-            array_map(fn($value): string => $this->dockerPath . $value, $this->versions),
-            base_path('docker-compose.yml')
-        );
+            ->replaceInFile($this->runtimePath, $this->dockerPath, base_path('docker-compose.yml'));
     }
 }
